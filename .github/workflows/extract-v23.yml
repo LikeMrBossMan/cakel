@@ -1,0 +1,31 @@
+name: Extract Enterprise CAK Tracker V23
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Extract the original V23 app
+        run: |
+          set -euo pipefail
+          test -f enterprise_cak_tracker_v23_w3spaces.zip
+          unzip -o enterprise_cak_tracker_v23_w3spaces.zip -d .
+          find blank blank_template static -name '.gitkeep' -type f -delete
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A blank blank_template static manage.py requirements.txt README.md DEPLOY_V23.md LICENSE.md version.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Extract original Enterprise CAK Tracker V23 application"
+            git push
+          fi
